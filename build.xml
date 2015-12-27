@@ -1,0 +1,121 @@
+<project name="cbcdevotional" default="build">
+  <!-- Use ivy to manage our external library dependencies -->
+  <import file="build-ivy.xml"/>
+
+  <target name="classpaths" depends="ivy"
+          description="Set up classpaths, including external libraries retrieved by ivy">
+    <path id="compile.classpath">
+      <path refid="ivy.compile.classpath"/>
+      <pathelement location="build/cbcdevotional"/>
+    </path>
+    <path id="test.compile.classpath">
+      <path refid="ivy.compile.classpath"/>
+      <path refid="ivy.test.classpath"/>
+      <pathelement location="build/cbcdevotional"/>
+    </path>
+    <path id="runtime.classpath">
+      <path refid="ivy.runtime.classpath"/>
+      <pathelement location="build/cbcdevotional"/>
+    </path>
+    <path id="test.classpath">
+      <path refid="ivy.test.classpath"/>
+      <pathelement location="build/cbcdevotional"/>
+      <pathelement location="build/tests"/>
+    </path>
+  </target>
+
+  <target name="clean" description="Clean the target directory">
+    <delete dir="build"/>
+  </target>
+  <target name="clean-ivycache" description="Clean the ivycache directory (where external ivy-managed libraries are kept so that &quot;ant clean&quot; doesn't force a re-download of all external libraries)">
+    <delete dir=".ivycache"/>
+  </target>
+  <target name="clean-all" depends="clean,clean-ivycache"/>
+
+  <target name="build-java" description="Build the java sources"
+          depends="classpaths">
+    <mkdir dir="build/cbcdevotional"/>
+    <javac destdir="build/cbcdevotional"
+           debug="true"
+           classpathref="compile.classpath"
+           includeAntRuntime="false"
+           source="1.8"
+           >
+      <compilerarg value="-Xlint:unchecked"/>
+      <src path="src/java"/>
+      <include name="**/*.java"/>
+    </javac>
+    <copy todir="build/cbcdevotional">
+      <fileset dir="src/java" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <target name="build" depends="build-java">
+  </target>
+
+  <target name="javadoc" depends="classpaths" description="Generate the javadoc for the project">
+    <javadoc classpathref="compile.classpath"
+             destdir="build/javadoc">
+      <sourcepath>
+        <pathelement location="src/java"/>
+      </sourcepath>
+    </javadoc>
+  </target>
+
+  <target name="build-test" description="Build the test sources"
+          depends="classpaths">
+    <mkdir dir="build/tests"/>
+    <javac destdir="build/tests"
+           debug="true"
+           classpathref="test.compile.classpath"
+           includeAntRuntime="false"
+           source="1.8"
+           >
+      <compilerarg value="-Xlint:unchecked"/>
+      <src path="test/java"/>
+      <include name="**/*.java"/>
+    </javac>
+    <copy todir="build/tests">
+      <fileset dir="test/java" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+    <!-- Macro for running junit tests -->
+    <macrodef name="testjava">
+      <attribute name="junitclass" description="The name of the junit test class to run"/>
+      <sequential>
+        <!-- We use the junit task - in theory, we're supposed to just
+             use the junit task, and include the ant-junit jars in its
+             classpath.  For whatever reason, that just doesn't seem
+             to work.  So instead we define the junit task explicitly
+             using "taskdef".  Except that ant already seems to
+             (partially) define the junit task, so it complains if we
+             name the task junit.  So we just call it "junittask"
+             instead, but it's really the same as the junit task. -->
+        <taskdef name="junittask"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+          <classpath>
+            <fileset dir="build/ivy/test">
+              <!-- ant-junit defines the task, ant-junit4 allows JUnit
+                   4 tests (tests defined by annotations) to work -->
+              <include name="ant-junit-*.jar"/>
+              <include name="ant-junit4-*.jar"/>
+            </fileset>
+          </classpath>
+        </taskdef>
+
+        <junittask fork="true">
+          <classpath>
+            <path refid="test.classpath"/>
+          </classpath>
+          <formatter type="plain" usefile="false"/>
+          <test name="@{junitclass}"/>
+        </junittask>
+      </sequential>
+    </macrodef>
+
+  <target name="test" depends="build-test">
+    <testjava junitclass="org.cbcdevotional.services.test.ServicesTestSuite"/>
+  </target>
+  
+</project>
