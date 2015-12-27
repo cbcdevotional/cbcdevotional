@@ -50,11 +50,19 @@
     <!-- JCommander command line parser -->
     <dependency org="com.beust" name="jcommander" rev="1.48"
                 conf="compile->default"/>
+    <!-- AWS libraries -->
+    <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.10.43"
+                conf="compile->default"/>
+    <!-- Jetty embedded web server -->
+    <dependency org="org.eclipse.jetty" name="jetty-server" rev="9.3.6.v20151106"
+                conf="compile->default"/>
 
     <!-- libraries that are to be included in the release -->
     <dependency org="com.beust" name="jcommander" rev="1.48"
                 conf="release->default"/>
     <dependency org="org.apache.velocity" name="velocity" rev="1.7"
+                conf="release->default"/>
+    <dependency org="com.amazonaws" name="aws-java-sdk" rev="1.10.43"
                 conf="release->default"/>
 
     <!-- libraries for testing -->
