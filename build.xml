@@ -80,42 +80,48 @@
     </copy>
   </target>
 
-    <!-- Macro for running junit tests -->
-    <macrodef name="testjava">
-      <attribute name="junitclass" description="The name of the junit test class to run"/>
-      <sequential>
-        <!-- We use the junit task - in theory, we're supposed to just
-             use the junit task, and include the ant-junit jars in its
-             classpath.  For whatever reason, that just doesn't seem
-             to work.  So instead we define the junit task explicitly
-             using "taskdef".  Except that ant already seems to
-             (partially) define the junit task, so it complains if we
-             name the task junit.  So we just call it "junittask"
-             instead, but it's really the same as the junit task. -->
-        <taskdef name="junittask"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-          <classpath>
-            <fileset dir="build/ivy/test">
-              <!-- ant-junit defines the task, ant-junit4 allows JUnit
-                   4 tests (tests defined by annotations) to work -->
-              <include name="ant-junit-*.jar"/>
-              <include name="ant-junit4-*.jar"/>
-            </fileset>
-          </classpath>
-        </taskdef>
+  <!-- Macro for running junit tests -->
+  <macrodef name="testjava">
+    <attribute name="junitclass" description="The name of the junit test class to run"/>
+    <sequential>
+      <!-- We use the junit task - in theory, we're supposed to just
+           use the junit task, and include the ant-junit jars in its
+           classpath.  For whatever reason, that just doesn't seem
+           to work.  So instead we define the junit task explicitly
+           using "taskdef".  Except that ant already seems to
+           (partially) define the junit task, so it complains if we
+           name the task junit.  So we just call it "junittask"
+           instead, but it's really the same as the junit task. -->
+      <taskdef name="junittask"
+               classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath>
+          <fileset dir="build/ivy/test">
+            <!-- ant-junit defines the task, ant-junit4 allows JUnit
+                 4 tests (tests defined by annotations) to work -->
+            <include name="ant-junit-*.jar"/>
+            <include name="ant-junit4-*.jar"/>
+          </fileset>
+        </classpath>
+      </taskdef>
 
-        <junittask fork="true">
-          <classpath>
-            <path refid="test.classpath"/>
-          </classpath>
-          <formatter type="plain" usefile="false"/>
-          <test name="@{junitclass}"/>
-        </junittask>
-      </sequential>
-    </macrodef>
+      <junittask fork="true">
+        <classpath>
+          <path refid="test.classpath"/>
+        </classpath>
+        <formatter type="plain" usefile="false"/>
+        <test name="@{junitclass}"/>
+      </junittask>
+    </sequential>
+  </macrodef>
 
   <target name="test" depends="build-test">
     <testjava junitclass="org.cbcdevotional.services.test.ServicesTestSuite"/>
+  </target>
+  
+  <target name="devserver" depends="build">
+    <java classpathref="runtime.classpath"
+          classname="org.cbcdevotional.devserver.DevServer"
+          />
   </target>
   
 </project>
