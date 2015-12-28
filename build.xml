@@ -121,6 +121,14 @@
   <target name="devserver" depends="build">
     <java classpathref="runtime.classpath"
           classname="org.cbcdevotional.devserver.DevServer"
+          fork="true"
+          />
+  </target>
+  
+  <target name="proto" depends="build">
+    <java classpathref="runtime.classpath"
+          classname="org.cbcdevotional.prototype.AWSPrototype"
+          fork="true"
           />
   </target>
   
